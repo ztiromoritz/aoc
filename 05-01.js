@@ -51,6 +51,5 @@ lines.forEach(({x1,y1,x2,y2})=>{
         } 
     }
 })
-
 const overlaps2 = Object.entries(grid).filter(([key,value])=>value>=2).length;
 console.log("Part2: ",overlaps2);

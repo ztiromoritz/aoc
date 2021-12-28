@@ -1,4 +1,5 @@
 require('utils')
+local tt = require 'tick'
 
 function loadData()
     local data = {}
@@ -152,8 +153,13 @@ tick =
     end
 )
 
+function love.conf(t)
+    ---t.window.vsync = true
+end
+
 function love.load()
-    font = love.graphics.newFont("SourceCodePro.ttf", 6)
+    tt.framerate = 2
+    font = love.graphics.newFont("SourceCodePro.ttf", 13)
     love.graphics.setFont(font)
     love.window.setMode(1600, 900, flags)
     love.graphics.setBackgroundColor(1, 1, 1)
@@ -168,22 +174,27 @@ function love.load()
     state = tick(data, WIDTH, HEIGHT)
 end
 
+delta = 0
 function love.update(dt)
-    if love.keyboard.isDown("up") then
-        cam_y = cam_y + speed * dt
-    end
-    if love.keyboard.isDown("down") then
-        cam_y = cam_y - speed * dt
-    end
-    if love.keyboard.isDown("right") then
-        cam_x = cam_x - speed * dt
-    end
-    if love.keyboard.isDown("left") then
-        cam_x = cam_x + speed * dt
-    end
-    for i = 1,50 do
-        if not state.done then
-            state = tick(data, WIDTH, HEIGHT)
+    delta = delta + dt
+    if delta > 1/5 then
+        delta = delta - 1/5
+        if love.keyboard.isDown("up") then
+            cam_y = cam_y + speed * dt
+        end
+        if love.keyboard.isDown("down") then
+            cam_y = cam_y - speed * dt
+        end
+        if love.keyboard.isDown("right") then
+            cam_x = cam_x - speed * dt
+        end
+        if love.keyboard.isDown("left") then
+            cam_x = cam_x + speed * dt
+        end
+        for i = 1,50 do
+            if not state.done then
+                state = tick(data, WIDTH, HEIGHT)
+            end
         end
     end
 end
@@ -227,4 +238,9 @@ function love.draw()
     local target = state.path[1]
     love.graphics.print(#state.frontier, -30, 0)
     love.graphics.print(state.cost_so_far[target] or 'nil',0, -30)
+    love.graphics.print( love.timer.getFPS(), -30, -30 );
+
+    local major, minor, revision, codename = love.getVersion()
+    local str = string.format("Version %d.%d.%d - %s", major, minor, revision, codename)
+    love.graphics.print(str, -200, 20)
 end
